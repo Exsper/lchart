@@ -244,7 +244,7 @@ class Chart {
                 nowX = this.accAdd(nowX, intervalX);
             }
             // titleX
-            this.ctx.fillText(this.label.titleX, this.zone.data.originX + this.zone.data.width, this.zone.data.originY + fontHeight);
+            this.ctx.fillText(this.label.titleX, this.zone.data.originX + this.zone.data.width + 20, this.zone.data.originY);
             this.ctx.stroke();
         }
     }
