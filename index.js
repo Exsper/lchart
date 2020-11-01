@@ -9,6 +9,7 @@ class Chart {
      * @param {{left:Number, right:Number, up:Number, down:Number}} [configs.padding]
      * @param {{width:Number, height:Number}} [configs.size] pic size
      * @param {String} [configs.font] exp. "15px Georgia"
+     * @param {{background:String ,title:String, titleX:String, titleY:String, coordinate:String, line:String, pointFill:String, grid:String}} [configs.color] 
      * @param {{title:String, titleX:String, titleY:String, divideX:Number, divideY:Number}} [configs.label]
      * @param {Boolean} [configs.xDateMode] x-coordinate is date etc... divited evenly, data.x must be [1, 2, 3, ...]
      * @param {Array<String>} [configs.xDateLabel] when xDateMode = true, show xDateLabel at x-coordinate instead of x value, length must equal to data.length
@@ -30,6 +31,17 @@ class Chart {
         this.size.height = configs.size.height || 600;
         // font
         this.font = configs.font || "15px Georgia";
+        // color
+        this.color = {};
+        if (!configs.color) configs.color = {};
+        this.color.background = configs.color.background || "white";
+        this.color.title = configs.color.title || "#000";
+        this.color.titleX = configs.color.titleX || "#000";
+        this.color.titleY = configs.color.titleY || "#000";
+        this.color.coordinate = configs.color.coordinate || "#000";
+        this.color.line = configs.color.line || "#000";
+        this.color.pointFill = configs.color.pointFill || "gray";
+        this.color.grid = configs.color.grid || "#999";
         // labels
         this.label = {};
         if (!configs.label) configs.label = {};
@@ -139,19 +151,21 @@ class Chart {
         this.ctx.moveTo(drawPoints[0].x, drawPoints[0].y);
         drawPoints.map((point) => {
             this.ctx.lineTo(point.x, point.y);
-            this.ctx.strokeStyle = "#000";
+            this.ctx.strokeStyle = this.color.line;
             this.ctx.stroke();
             this.ctx.beginPath();
-            this.ctx.fillStyle = "gray";
+            this.ctx.fillStyle = this.color.pointFill;
             this.ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
             this.ctx.fill();
             this.ctx.beginPath();
             this.ctx.moveTo(point.x, point.y);
         });
+        this.ctx.stroke();
     }
 
     drawCoordinates() {
         this.ctx.beginPath();
+        this.ctx.strokeStyle = this.color.coordinate;
         this.ctx.moveTo(this.zone.data.originX, this.zone.data.originY);
         this.ctx.lineTo(this.zone.data.originX, this.padding.up);
         this.ctx.moveTo(this.zone.data.originX, this.zone.data.originY);
@@ -172,7 +186,7 @@ class Chart {
         // title
         this.ctx.beginPath();
         this.ctx.font = this.font;
-        this.ctx.strokeStyle = "#000";
+        this.ctx.fillStyle = this.color.title;
         // min label at origin
         this.ctx.textAlign = "center";
         this.ctx.fillText(this.label.title, Math.floor(this.size.width / 2), Math.floor(this.padding.up / 2));
@@ -182,7 +196,8 @@ class Chart {
     drawLeft() {
         this.ctx.beginPath();
         this.ctx.font = this.font;
-        this.ctx.strokeStyle = "#999";
+        this.ctx.strokeStyle = this.color.grid;
+        this.ctx.fillStyle = this.color.titleY;
         // min label at origin
         this.ctx.textAlign = "center";
         const intervalY = this.accAdd(this.dataRange.ymax, -this.dataRange.ymin) / this.label.divideY;
@@ -201,7 +216,7 @@ class Chart {
         // titleY
         this.ctx.beginPath();
         this.ctx.font = this.font;
-        this.ctx.strokeStyle = "#000";
+        this.ctx.fillStyle = this.color.titleY;
         this.ctx.fillText(this.label.titleY, this.zone.data.originX, this.padding.up - 20);
         this.ctx.stroke();
     }
@@ -210,7 +225,8 @@ class Chart {
         if (this.xDateMode && this.xDateLabel && this.xDateLabel.length >= this.data.length) {
             this.ctx.beginPath();
             this.ctx.font = this.font;
-            this.ctx.strokeStyle = "#999";
+            this.ctx.strokeStyle = this.color.grid;
+            this.ctx.fillStyle = this.color.titleX;
             // min label at origin
             this.ctx.textAlign = "center";
             const intervalX = this.accAdd(this.dataRange.xmax, -this.dataRange.xmin) / this.label.divideX;
@@ -221,7 +237,7 @@ class Chart {
                 let labelIndex = (this.label.divideX <= 1) ? (this.xDateLabel.length - 1) * i : Math.floor(this.xDateLabel.length / this.label.divideX * i);
                 if (labelIndex >= this.xDateLabel.length) labelIndex = this.xDateLabel.length - 1;
                 const text = this.xDateLabel[labelIndex];
-                this.ctx.textAlign = "center";
+                this.ctx.textAlign = "left";
                 this.ctx.fillText(text, x, this.zone.data.originY + fontHeight);
                 nowX = this.accAdd(nowX, intervalX);
             }
@@ -229,14 +245,15 @@ class Chart {
             // titleX
             this.ctx.beginPath();
             this.ctx.font = this.font;
-            this.ctx.strokeStyle = "#000";
-            this.ctx.fillText(this.label.titleX, this.zone.data.originX + this.zone.data.width + 20, this.zone.data.originY);
+            this.ctx.fillStyle = this.color.titleX;
+            this.ctx.fillText(this.label.titleX, this.zone.data.originX + this.zone.data.width + 5, this.zone.data.originY);
             this.ctx.stroke();
         }
         else {
             this.ctx.beginPath();
             this.ctx.font = this.font;
-            this.ctx.strokeStyle = "#999";
+            this.ctx.strokeStyle = this.color.grid;
+            this.ctx.fillStyle = this.color.titleX;
             // min label at origin
             this.ctx.textAlign = "center";
             const intervalX = this.accAdd(this.dataRange.xmax, -this.dataRange.xmin) / this.label.divideX;
@@ -255,15 +272,15 @@ class Chart {
             // titleX
             this.ctx.beginPath();
             this.ctx.font = this.font;
-            this.ctx.strokeStyle = "#000";
-            this.ctx.fillText(this.label.titleX, this.zone.data.originX + this.zone.data.width + 20, this.zone.data.originY);
+            this.ctx.fillStyle = this.color.titleX;
+            this.ctx.fillText(this.label.titleX, this.zone.data.originX + this.zone.data.width + 5, this.zone.data.originY);
             this.ctx.stroke();
         }
     }
 
     setBackground() {
         this.ctx.rect(0, 0, this.size.width, this.size.height);
-        this.ctx.fillStyle = "white";
+        this.ctx.fillStyle = this.color.background;
         this.ctx.fill();
     }
 
