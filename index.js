@@ -172,7 +172,7 @@ class Chart {
         // title
         this.ctx.beginPath();
         this.ctx.font = this.font;
-        this.ctx.strokeStyle = "#999";
+        this.ctx.strokeStyle = "#000";
         // min label at origin
         this.ctx.textAlign = "center";
         this.ctx.fillText(this.label.title, Math.floor(this.size.width / 2), Math.floor(this.padding.up / 2));
@@ -197,7 +197,11 @@ class Chart {
             this.ctx.fillText(text, this.zone.data.originX - fontWidth * text.length, y);
             nowY = this.accAdd(nowY, intervalY);
         }
+        this.ctx.stroke();
         // titleY
+        this.ctx.beginPath();
+        this.ctx.font = this.font;
+        this.ctx.strokeStyle = "#000";
         this.ctx.fillText(this.label.titleY, this.zone.data.originX, this.padding.up - 20);
         this.ctx.stroke();
     }
@@ -221,7 +225,11 @@ class Chart {
                 this.ctx.fillText(text, x, this.zone.data.originY + fontHeight);
                 nowX = this.accAdd(nowX, intervalX);
             }
+            this.ctx.stroke();
             // titleX
+            this.ctx.beginPath();
+            this.ctx.font = this.font;
+            this.ctx.strokeStyle = "#000";
             this.ctx.fillText(this.label.titleX, this.zone.data.originX + this.zone.data.width + 20, this.zone.data.originY);
             this.ctx.stroke();
         }
@@ -243,7 +251,11 @@ class Chart {
                 this.ctx.fillText(text, x, this.zone.data.originY + fontHeight);
                 nowX = this.accAdd(nowX, intervalX);
             }
+            this.ctx.stroke();
             // titleX
+            this.ctx.beginPath();
+            this.ctx.font = this.font;
+            this.ctx.strokeStyle = "#000";
             this.ctx.fillText(this.label.titleX, this.zone.data.originX + this.zone.data.width + 20, this.zone.data.originY);
             this.ctx.stroke();
         }
