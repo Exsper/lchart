@@ -1,0 +1,26 @@
+{
+  "name": "linechart",
+  "version": "0.0.1",
+  "description": "Streamlined and efficient line-chart tool designed to draw line charts for large amounts of data.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Exsper",
+  "license": "MIT",
+  "dependencies": {
+    "canvas": "^2.6.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Exsper/linechart.git"
+  },
+  "keywords": [
+    "line",
+    "chart"
+  ],
+  "bugs": {
+    "url": "https://github.com/Exsper/linechart/issues"
+  },
+  "homepage": "https://github.com/Exsper/linechart#readme"
+}
