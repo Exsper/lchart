@@ -1,11 +1,14 @@
 {
-  "name": "linechart",
+  "name": "lchart",
   "version": "0.0.1",
   "description": "Streamlined and efficient line-chart tool designed to draw line charts for large amounts of data.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "files": [
+    "index.js"
+  ],
   "author": "Exsper",
   "license": "MIT",
   "dependencies": {
@@ -13,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Exsper/linechart.git"
+    "url": "git+https://github.com/Exsper/lchart.git"
   },
   "keywords": [
     "line",
     "chart"
   ],
   "bugs": {
-    "url": "https://github.com/Exsper/linechart/issues"
+    "url": "https://github.com/Exsper/lchart/issues"
   },
-  "homepage": "https://github.com/Exsper/linechart#readme"
+  "homepage": "https://github.com/Exsper/lchart#readme"
 }
