@@ -237,7 +237,7 @@ class Chart {
                 let labelIndex = (this.label.divideX <= 1) ? (this.xDateLabel.length - 1) * i : Math.floor(this.xDateLabel.length / this.label.divideX * i);
                 if (labelIndex >= this.xDateLabel.length) labelIndex = this.xDateLabel.length - 1;
                 const text = this.xDateLabel[labelIndex];
-                this.ctx.textAlign = "left";
+                this.ctx.textAlign = "center";
                 this.ctx.fillText(text, x, this.zone.data.originY + fontHeight);
                 nowX = this.accAdd(nowX, intervalX);
             }
@@ -246,7 +246,7 @@ class Chart {
             this.ctx.beginPath();
             this.ctx.font = this.font;
             this.ctx.fillStyle = this.color.titleX;
-            this.ctx.fillText(this.label.titleX, this.zone.data.originX + this.zone.data.width + 5, this.zone.data.originY);
+            this.ctx.fillText(this.label.titleX, this.zone.data.originX + this.zone.data.width + 5, this.zone.data.originY - 10);
             this.ctx.stroke();
         }
         else {
@@ -273,7 +273,7 @@ class Chart {
             this.ctx.beginPath();
             this.ctx.font = this.font;
             this.ctx.fillStyle = this.color.titleX;
-            this.ctx.fillText(this.label.titleX, this.zone.data.originX + this.zone.data.width + 5, this.zone.data.originY);
+            this.ctx.fillText(this.label.titleX, this.zone.data.originX + this.zone.data.width + 5, this.zone.data.originY - 10);
             this.ctx.stroke();
         }
     }
