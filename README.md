@@ -1,5 +1,7 @@
 # lchart
+
 [![npm](https://img.shields.io/npm/v/lchart?style=flat-square)](https://www.npmjs.com/package/lchart)
+
 Streamlined and efficient line-chart tool designed to draw line charts for large amounts of data.
 
 ## install
