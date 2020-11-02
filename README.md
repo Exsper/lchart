@@ -4,7 +4,7 @@ Streamlined and efficient line-chart tool designed to draw line charts for large
 
 ## install
 ```javascript
-npm install Exsper/lchart
+npm install lchart
 ```
 
 ## usage
