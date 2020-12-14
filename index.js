@@ -175,11 +175,20 @@ class Chart {
 
     // accuary fix
     accAdd(arg1, arg2) {
-        var r1, r2, m;
+        let r1, r2;
         try { r1 = arg1.toString().split(".")[1].length } catch (e) { r1 = 0 }
         try { r2 = arg2.toString().split(".")[1].length } catch (e) { r2 = 0 }
-        m = Math.pow(10, Math.max(r1, r2));
+        const m = Math.pow(10, Math.max(r1, r2));
         return (arg1 * m + arg2 * m) / m;
+    }
+
+    accDiv(arg1, arg2) {
+        let t1 = 0, t2 = 0, r1, r2;
+        try { t1 = arg1.toString().split(".")[1].length } catch (e) { r1 = 0 }
+        try { t2 = arg2.toString().split(".")[1].length } catch (e) { r2 = 0 }
+        r1 = Number(arg1.toString().replace(".", ""))
+        r2 = Number(arg2.toString().replace(".", ""))
+        return (r1 / r2) * Math.pow(10, t2 - t1);
     }
 
     drawUp() {
@@ -200,7 +209,7 @@ class Chart {
         this.ctx.fillStyle = this.color.titleY;
         // min label at origin
         this.ctx.textAlign = "center";
-        const intervalY = this.accAdd(this.dataRange.ymax, -this.dataRange.ymin) / this.label.divideY;
+        const intervalY = this.accDiv(this.accAdd(this.dataRange.ymax, -this.dataRange.ymin), this.label.divideY);
         const fontWidth = 5;
         let nowY = this.dataRange.ymin;
         for (let i = 0; i <= this.label.divideY; i++) {
