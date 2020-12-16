@@ -1,6 +1,6 @@
 {
   "name": "lchart",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Streamlined and efficient line-chart tool designed to draw line charts for large amounts of data.",
   "main": "index.js",
   "scripts": {

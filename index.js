@@ -106,8 +106,8 @@ class Chart {
         let fixedMax = (max > 0) ? (max - (max % fixedInterval) + fixedInterval) : (max - (max % fixedInterval));
         // Avoid accuracy problems
         const mul = Math.pow(10, -digit);
-        if (Math.abs(fixedMin) < 1) fixedMin = Math.round((fixedMin + Number.EPSILON) * mul) / mul;
-        if (Math.abs(fixedMax) < 1) fixedMax = Math.round((fixedMax + Number.EPSILON) * mul) / mul;
+        if (fixedMin.toString().length > 10) fixedMin = Math.round((fixedMin + Number.EPSILON) * mul) / mul;
+        if (fixedMax.toString().length > 10) fixedMax = Math.round((fixedMax + Number.EPSILON) * mul) / mul;
         const fixedDivideCount = Math.round((fixedMax - fixedMin) / fixedInterval);
         return { min: fixedMin, max: fixedMax, divideCount: fixedDivideCount };
     }
