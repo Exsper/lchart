@@ -2,58 +2,87 @@
 
 const { createCanvas } = require("canvas");
 
+class Line {
+    /**
+     * @param {Object} data
+     * @param {String} data.name
+     * @param {Array<{x:Number, y:Number}>} data.points
+     * @param {{lineColor:String, pointFillColor:String}} [data.configs]
+     * @param {{lineColor:String, pointFillColor:String}} defaultConfigs
+     */
+    constructor(data, defaultConfigs) {
+        this.name = data.name;
+        this.points = data.points;
+        this.lineConfigs = data.configs || {};
+        this.lineColor = this.lineConfigs.lineColor || defaultConfigs.lineColor;
+        this.pointFillColor = this.lineConfigs.pointFillColor || defaultConfigs.pointFillColor;
+    }
+}
+
+/**
+ * calculate chart layout & draw coordinates
+ */
 class Chart {
     /**
-     * @param {Array<{x:Number, y:Number}>} data 
-     * @param {Object} [configs]
-     * @param {{left:Number, right:Number, up:Number, down:Number}} [configs.padding]
-     * @param {{width:Number, height:Number}} [configs.size] pic size
-     * @param {String} [configs.font] exp. "15px Georgia"
-     * @param {{background:String ,title:String, titleX:String, titleY:String, coordinate:String, line:String, pointFill:String, grid:String}} [configs.color] 
-     * @param {{title:String, titleX:String, titleY:String, divideX:Number, divideY:Number}} [configs.label]
-     * @param {Boolean} [configs.xDateMode] x-coordinate is date etc... divited evenly, data.x must be [1, 2, 3, ...]
-     * @param {Array<String>} [configs.xDateLabel] when xDateMode = true, show xDateLabel at x-coordinate instead of x value, length must equal to data.length
+     * lchart v0.1   WARNING: Not compatible with versions below v0.1
+     * @param {Array<{name:String,points:Array<{x:Number, y:Number}>,configs:{lineColor:String, pointFillColor:String}}>} datas
+     * @param {Object} [picConfigs]
+     * @param {{left:Number, right:Number, up:Number, down:Number}} [picConfigs.padding]
+     * @param {{width:Number, height:Number}} [picConfigs.size] pic size
+     * @param {String} [picConfigs.font] exp. "15px Georgia"
+     * @param {{background:String ,title:String, titleX:String, titleY:String, coordinate:String, grid:String}} [picConfigs.color] 
+     * @param {{title:String, titleX:String, titleY:String, divideX:Number, divideY:Number}} [picConfigs.label]
+     * @param {Boolean} [picConfigs.xDateMode] x-coordinate is date etc... divited evenly, point.x must be [1, 2, 3, ...] or [3, 5, 6, ...] etc...
+     * @param {Array<String>} [picConfigs.xDateLabel] when xDateMode = true, show xDateLabel at x-coordinate instead of x value, length must contains all data's point.x
+     *                                                for example:   line1 point.x [1, 2, 3, 4, 5]   line2 point.x [2, 4, 6, 7, 8]
+     *                                                xDateLabel should be like ["day1", "day2", "day3", "day4", "day5", "day6", "day7", "day8"] contains 1-8
+     *                                                the reason that I don't use Date() directly is x-coordinate can be other things like team numbers, seasons, years...
      */
-    constructor(data, configs = {}) {
-        // source
-        this.data = data;
+    constructor(datas, picConfigs = {}) {
+        // lines count should be no more than 8
+        this.defaultLineColor = ["#E74C3C", "#3498DB", "#9B59B6", "#2ECC71", "#F1C40F", "#34495E", "#95A5A6", "#1ABC9C"];
+        this.defaultPointColor = ["#C0392B", "#2980B9", "#8E44AD", "#27AE60", "#F39C12", "#2C3E50", "#7F8C8D", "#16A085"];
+        if (datas.length <= 1) this.lines = [new Line(datas.pop(), { lineColor: "#000", pointFillColor: "gray" })];
+        else this.lines = datas.map((data, index) => {
+            const lineColor = this.defaultLineColor[index] || this.randomColor();
+            const pointFillColor = this.defaultPointColor[index] || lineColor;
+            return new Line(data, { lineColor, pointFillColor });
+        });
         // padding
         this.padding = {};
-        if (!configs.padding) configs.padding = {};
-        this.padding.left = configs.padding.left || 50;
-        this.padding.right = configs.padding.right || 50;
-        this.padding.up = configs.padding.up || 50;
-        this.padding.down = configs.padding.down || 50;
+        if (!picConfigs.padding) picConfigs.padding = {};
+        this.padding.left = picConfigs.padding.left || 50;
+        this.padding.right = picConfigs.padding.right || (this.lines.length > 1) ? 150 : 50;
+        this.padding.up = picConfigs.padding.up || 50;
+        this.padding.down = picConfigs.padding.down || 50;
         // size
         this.size = {};
-        if (!configs.size) configs.size = {};
-        this.size.width = configs.size.width || 800;
-        this.size.height = configs.size.height || 600;
+        if (!picConfigs.size) picConfigs.size = {};
+        this.size.width = picConfigs.size.width || 800;
+        this.size.height = picConfigs.size.height || 600;
         // font
-        this.font = configs.font || "15px Georgia";
+        this.font = picConfigs.font || "15px Georgia";
         // color
         this.color = {};
-        if (!configs.color) configs.color = {};
-        this.color.background = configs.color.background || "white";
-        this.color.title = configs.color.title || "#000";
-        this.color.titleX = configs.color.titleX || "#000";
-        this.color.titleY = configs.color.titleY || "#000";
-        this.color.coordinate = configs.color.coordinate || "#000";
-        this.color.line = configs.color.line || "#000";
-        this.color.pointFill = configs.color.pointFill || "gray";
-        this.color.grid = configs.color.grid || "#999";
+        if (!picConfigs.color) picConfigs.color = {};
+        this.color.background = picConfigs.color.background || "white";
+        this.color.title = picConfigs.color.title || "#000";
+        this.color.titleX = picConfigs.color.titleX || "#000";
+        this.color.titleY = picConfigs.color.titleY || "#000";
+        this.color.coordinate = picConfigs.color.coordinate || "#000";
+        this.color.grid = picConfigs.color.grid || "#999";
         // labels
         this.label = {};
-        if (!configs.label) configs.label = {};
-        this.label.title = configs.label.title || "";
-        this.label.titleX = configs.label.titleX || "";
-        this.label.titleY = configs.label.titleY || "";
-        // how many segments are the coordinates divided into, it may be changed by getDataRange()
-        this.label.divideX = configs.label.divideX || 10;
-        this.label.divideY = configs.label.divideY || 10;
+        if (!picConfigs.label) picConfigs.label = {};
+        this.label.title = picConfigs.label.title || "";
+        this.label.titleX = picConfigs.label.titleX || "";
+        this.label.titleY = picConfigs.label.titleY || "";
+        // how many segments are the coordinates divided into, it may be changed by getDatasRange()
+        this.label.divideX = picConfigs.label.divideX || 10;
+        this.label.divideY = picConfigs.label.divideY || 10;
         // xDateMode
-        this.xDateMode = configs.xDateMode || false;
-        this.xDateLabel = configs.xDateLabel || null;
+        this.xDateMode = picConfigs.xDateMode || false;
+        this.xDateLabel = picConfigs.xDateLabel || null;
         // draw zone
         /*
         -123-in-pic----------------------------------------------------------------
@@ -62,9 +91,9 @@ class Chart {
         3         |                        (title)                     |          |
         |---------^---------------------------------------------------------------|
         |         |                                                    |          |
-        |   left  |                                                    |          |
-        | (y-coor 3                       data zone                    |   right  |
-        | dinate) 2                                                    |  padding |
+        |   left  |                                                    |   right  |
+        | (y-coor 3                       data zone                    |  padding |
+        | dinate) 2                                                    | (legend) |
         |         1                                                    |          |
         |---------+1-2-3-in-data--------------------------------------->----------|
         |         |                                                    |          |
@@ -89,13 +118,19 @@ class Chart {
         this.zone.down.height = this.padding.down;
 
         // dataRange
-        this.dataRange = this.getDataRange();
+        this.dataRange = this.getCoordinatesRanges();
         // Calculate how many pixels equal to 1 
         this.dataInterval = this.getDataInterval();
 
         // initCtx
         this.canvas = createCanvas(this.size.width, this.size.height);
         this.ctx = this.canvas.getContext('2d');
+    }
+
+    randomColor() {
+        var color = "#";
+        for (var i = 0; i < 6; i++) color += parseInt(Math.random() * 16).toString(16);
+        return color;
     }
 
     getSuitableRange(min, max, divideCount) {
@@ -112,16 +147,34 @@ class Chart {
         return { min: fixedMin, max: fixedMax, divideCount: fixedDivideCount };
     }
 
-    getDataRange() {
-        let xmin = this.data[0].x;
-        let xmax = this.data[0].x;
-        let ymin = this.data[0].y;
-        let ymax = this.data[0].y;
-        this.data.map((point) => {
+    getDataRange(data) {
+        let xmin = data[0].x;
+        let xmax = data[0].x;
+        let ymin = data[0].y;
+        let ymax = data[0].y;
+        data.map((point) => {
             if (point.x > xmax) xmax = point.x;
             if (point.x < xmin) xmin = point.x;
             if (point.y > ymax) ymax = point.y;
             if (point.y < ymin) ymin = point.y;
+        });
+        return { xmin, xmax, ymin, ymax };
+
+    }
+
+    getCoordinatesRanges() {
+        const ranges = this.lines.map((line) => {
+            return this.getDataRange(line.points);
+        })
+        let xmin = ranges[0].xmin;
+        let xmax = ranges[0].xmax;
+        let ymin = ranges[0].ymin;
+        let ymax = ranges[0].ymax;
+        ranges.map((range) => {
+            if (range.xmax > xmax) xmax = range.xmax;
+            if (range.xmin < xmin) xmin = range.xmin;
+            if (range.ymax > ymax) ymax = range.ymax;
+            if (range.ymin < ymin) ymin = range.ymin;
         });
         const suitableX = (this.xDateMode) ? { min: xmin, max: xmax, divideCount: this.label.divideX } : this.getSuitableRange(xmin, xmax, this.label.divideX);
         this.label.divideX = suitableX.divideCount;
@@ -134,33 +187,6 @@ class Chart {
         const widthInterval = this.zone.data.width / (this.dataRange.xmax - this.dataRange.xmin);
         const heightInterval = this.zone.data.height / (this.dataRange.ymax - this.dataRange.ymin);
         return { widthInterval, heightInterval };
-    }
-
-    data2Point() {
-        // true point in pic
-        return this.data.map((point) => {
-            const x = Math.ceil(this.dataInterval.widthInterval * (point.x - this.dataRange.xmin) + this.padding.left);
-            const y = Math.ceil(this.size.height - this.dataInterval.heightInterval * (point.y - this.dataRange.ymin) - this.padding.down);
-            return { x, y };
-        });
-    }
-
-    drawLines() {
-        const drawPoints = this.data2Point();
-        this.ctx.beginPath();
-        this.ctx.moveTo(drawPoints[0].x, drawPoints[0].y);
-        drawPoints.map((point) => {
-            this.ctx.lineTo(point.x, point.y);
-            this.ctx.strokeStyle = this.color.line;
-            this.ctx.stroke();
-            this.ctx.beginPath();
-            this.ctx.fillStyle = this.color.pointFill;
-            this.ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
-            this.ctx.fill();
-            this.ctx.beginPath();
-            this.ctx.moveTo(point.x, point.y);
-        });
-        this.ctx.stroke();
     }
 
     drawCoordinates() {
@@ -202,6 +228,35 @@ class Chart {
         this.ctx.stroke();
     }
 
+    drawRight() {
+        // legend
+        // ----------------
+        // | right padding|
+        // |        name O|
+        // | anothername O|
+        // |              |
+        // ----------------
+        const fontHeight = 20;
+        const circleX = this.size.width - 10;
+        let circleY = this.padding.up + fontHeight;
+        const colors = [];
+        const names = [];
+        this.lines.map((line) => {
+            colors.push(line.lineColor);
+            names.push(line.name);
+        })
+        this.ctx.textAlign = "right";
+        for (let i = 0; i < colors.length; i++) {
+            this.ctx.beginPath();
+            this.ctx.fillStyle = colors[i];
+            this.ctx.arc(circleX, circleY, 10, 0, 2 * Math.PI);
+            this.ctx.fill();
+            this.ctx.fillText(names[i], circleX - 20, circleY + 5);
+            circleY += fontHeight
+        }
+        this.ctx.stroke();
+    }
+
     drawLeft() {
         this.ctx.beginPath();
         this.ctx.font = this.font;
@@ -231,7 +286,7 @@ class Chart {
     }
 
     drawBottom() {
-        if (this.xDateMode && this.xDateLabel && this.xDateLabel.length >= this.data.length) {
+        if (this.xDateMode && this.xDateLabel) {
             this.ctx.beginPath();
             this.ctx.font = this.font;
             this.ctx.strokeStyle = this.color.grid;
@@ -293,15 +348,53 @@ class Chart {
         this.ctx.fill();
     }
 
+    data2Point(points) {
+        // true point in pic
+        return points.map((point) => {
+            const x = Math.ceil(this.dataInterval.widthInterval * (point.x - this.dataRange.xmin) + this.padding.left);
+            const y = Math.ceil(this.size.height - this.dataInterval.heightInterval * (point.y - this.dataRange.ymin) - this.padding.down);
+            return { x, y };
+        });
+    }
+
+    /**
+     * @param {Line} line
+     */
+    drawLine(line) {
+        const drawPoints = this.data2Point(line.points);
+        this.ctx.beginPath();
+        this.ctx.moveTo(drawPoints[0].x, drawPoints[0].y);
+        drawPoints.map((point) => {
+            this.ctx.lineTo(point.x, point.y);
+            this.ctx.strokeStyle = line.lineColor;
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.fillStyle = line.pointFillColor;
+            this.ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
+            this.ctx.fill();
+            this.ctx.beginPath();
+            this.ctx.moveTo(point.x, point.y);
+        });
+        this.ctx.stroke();
+    }
+
+    drawLines() {
+        this.lines.map((line) => {
+            this.drawLine(line);
+        })
+    }
+
     draw() {
         this.setBackground();
         this.drawLines();
         this.drawUp();
         this.drawCoordinates();
         this.drawLeft();
+        if (this.lines.length > 1) this.drawRight();
         this.drawBottom();
         // data:image/png;base64,#picdata#
         return this.canvas.toDataURL();
+        // return this;
     }
 
 }
