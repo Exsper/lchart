@@ -1,6 +1,6 @@
 {
   "name": "lchart",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Streamlined and efficient line-chart tool designed to draw line charts for large amounts of data.",
   "main": "index.js",
   "scripts": {
@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/Exsper/lchart/issues"
   },
-  "homepage": "https://github.com/Exsper/lchart#readme"
+  "homepage": "https://github.com/Exsper/lchart#readme",
+  "devDependencies": {
+    "blocked-at": "^1.2.0"
+  }
 }

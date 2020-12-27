@@ -1,21 +1,26 @@
+const blocked = require("blocked-at");
+blocked((time, stack, { type, resource }) => {
+    console.log(`Blocked for ${time}ms, operation started here:`, stack);
+    if (type === "HTTPPARSER" && resource) {
+        // resource structure in this example assumes Node 10.x
+        console.log(`URL related to blocking operation: ${resource.resource.incoming.url}`);
+    }
+}, { resourcesCap: 100 });
+
 const Chart = require("./index");
 
-const chart = new Chart([{points:[{ x: 1, y: 0.2 }, { x: 2, y: 0.4 }, { x: 3, y: 0.9 }, { x: 4, y: 0.16 }, { x: 5, y: 0.25 }, { x: 6, y: 0.36 }]}], {
+const data = [];
+for (let i = 1; i < 10000; i++) {
+    const x = Math.log(i);
+    const y = Math.log10(i);
+    data.push({ x, y });
+}
+
+const chart = new Chart([{points:data}], {
     label: {
         divideX: 10, title: "423152135215323515",
         titleX: "xName",
         titleY: "yName"
-    },
-    // xDateMode: true, xDateLabel: ["12", "66", "33", "99", "52", "55"],
-    color: {
-        background: "gray",
-        title:"red",
-        titleX:"#000",
-        titleY:"#654",
-        coordinate:"yellow",
-        line:"blue",
-        pointFill:"brown",
-        grid:"#335"
     }
 });
 console.log(chart.draw());

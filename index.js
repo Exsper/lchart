@@ -42,7 +42,7 @@ class Chart {
         // lines count should be no more than 8
         this.defaultLineColor = ["#E74C3C", "#3498DB", "#9B59B6", "#2ECC71", "#F1C40F", "#34495E", "#95A5A6", "#1ABC9C"];
         this.defaultPointColor = ["#C0392B", "#2980B9", "#8E44AD", "#27AE60", "#F39C12", "#2C3E50", "#7F8C8D", "#16A085"];
-        if (datas.length <= 1) this.lines = [new Line(datas.pop(), { lineColor: "#000", pointFillColor: "gray" })];
+        if (datas.length <= 1) this.lines = [new Line(datas.pop(), { lineColor: "#111", pointFillColor: "#000" })];
         else this.lines = datas.map((data, index) => {
             const lineColor = this.defaultLineColor[index] || this.randomColor();
             const pointFillColor = this.defaultPointColor[index] || lineColor;
@@ -192,6 +192,7 @@ class Chart {
     drawCoordinates() {
         this.ctx.beginPath();
         this.ctx.strokeStyle = this.color.coordinate;
+        this.ctx.lineWidth = 1;
         this.ctx.moveTo(this.zone.data.originX, this.zone.data.originY);
         this.ctx.lineTo(this.zone.data.originX, this.padding.up);
         this.ctx.moveTo(this.zone.data.originX, this.zone.data.originY);
@@ -365,6 +366,7 @@ class Chart {
         this.ctx.beginPath();
         this.ctx.moveTo(drawPoints[0].x, drawPoints[0].y);
         drawPoints.map((point) => {
+            this.ctx.lineWidth = 2;
             this.ctx.lineTo(point.x, point.y);
             this.ctx.strokeStyle = line.lineColor;
             this.ctx.stroke();
@@ -386,12 +388,12 @@ class Chart {
 
     draw() {
         this.setBackground();
-        this.drawLines();
         this.drawUp();
         this.drawCoordinates();
         this.drawLeft();
         if (this.lines.length > 1) this.drawRight();
         this.drawBottom();
+        this.drawLines();
         // data:image/png;base64,#picdata#
         return this.canvas.toDataURL();
         // return this;
